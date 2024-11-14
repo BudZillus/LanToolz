@@ -15,7 +15,8 @@ namespace LanToolz2
 {
     public partial class ScorePanel : Form
     {
-        string filePath;
+        string tournamentDataFilePath;
+        string dataFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Data");
         List<List<string>> teams;
         int teamCount;
         int playerPerTeam;
@@ -30,21 +31,19 @@ namespace LanToolz2
         
         public List<string> tournamentData = new List<string>();
 
+        public List<string> playedGamesList = new List<string>();
+
         Dictionary<string, int> finalRanking = new Dictionary<string, int>();
 
         private List<Label> teamLabels = new List<Label>();
         private List<TextBox> teamTextBoxes = new List<TextBox>();
-
-        List<string> gamesShooter = new List<string> { "Counter-Strike 2", "Halo", "Apex", "Call of Duty", "Overwatch 2" };
-        List<string> gamesStrategie = new List<string> { "Age of Empires 3", "Company of Heroes", "Company of Heroes 2" };
-        List<string> gamesDiverse = new List<string> { "Rocket League", "Witch IT", "Wreckfest", "Midnight Ghost Hunt" };
 
         public ScorePanel(List<string> tournamenData, List<List<string>> teams, int teamCount, int playerPerTeam, string headline, int numberOfMatchups, int totalRounds, bool restored, string filePath)
         {
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            this.filePath = filePath;
+            this.tournamentDataFilePath = filePath;
             this.tournamentData = tournamenData;
             this.teams = teams;
             this.playerPerTeam = playerPerTeam;
@@ -59,6 +58,7 @@ namespace LanToolz2
         private void ScorePanel_Load(object sender, EventArgs e)
         {
             CreateScorePanelLayout(numberOfMatchups, teamCount);
+
             if (!restored)
             {                
                 RevealPlayers();
@@ -315,7 +315,7 @@ namespace LanToolz2
 
         private void SaveFile()
         {            
-            File.WriteAllText(filePath, string.Join(Environment.NewLine, tournamentData));
+            File.WriteAllText(tournamentDataFilePath, string.Join(Environment.NewLine, tournamentData));
         }
 
         private void SaveScores()
@@ -369,84 +369,70 @@ namespace LanToolz2
 
         private string SelectNextGame()
         {
+            string gameListFilePath = Path.Combine(dataFolder, "games.csv");
+
+            List<List<string>> allGamesLists = new List<List<string>>();
+            List<string> games1 = new List<string>();
+            List<string> games2 = new List<string>();
+            List<string> games3 = new List<string>();
+            
+            foreach (var game in playedGamesList)
+            {
+                games1.Remove(game);
+                games2.Remove(game);
+                games3.Remove(game);
+            }
+
+            if (File.Exists(gameListFilePath))
+            {
+                var lines = File.ReadAllLines(gameListFilePath);
+                if (lines.Length >= 3)
+                {
+                    games1 = lines[0].Split(';').ToList();
+                    games2 = lines[1].Split(';').ToList();
+                    games3 = lines[2].Split(';').ToList();
+                }
+            }
+
             string nextGame = string.Empty;
             Random random = new Random();
 
-            if (playedGames == 0)
+            List<string> selectedGamesList = null;
+            switch (playedGames)
             {
-                if (gamesShooter.Count > 0)
-                {
-                    nextGame = gamesShooter[random.Next(gamesShooter.Count)];
-                    gamesShooter.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
+                case 0:
+                    selectedGamesList = games1;
+                    break;
+                case 1:
+                    selectedGamesList = games3;
+                    break;
+                case 2:
+                    selectedGamesList = games2;
+                    break;
+                case 3:
+                    selectedGamesList = games3;
+                    break;
+                case 4:
+                    selectedGamesList = games1;
+                    break;
+                case 5:
+                    selectedGamesList = games2;
+                    break;
             }
-            else if (playedGames == 1)
+
+            if (selectedGamesList != null && selectedGamesList.Count > 0)
             {
-                if (gamesDiverse.Count > 0)
-                {
-                    nextGame = gamesDiverse[random.Next(gamesDiverse.Count)];
-                    gamesDiverse.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
+                nextGame = selectedGamesList[random.Next(selectedGamesList.Count)];
+                selectedGamesList.Remove(nextGame);
             }
-            else if (playedGames == 2)
+            else
             {
-                if (gamesStrategie.Count > 0)
-                {
-                    nextGame = gamesStrategie[random.Next(gamesStrategie.Count)];
-                    gamesStrategie.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
-            }
-            else if (playedGames == 3)
-            {
-                if (gamesDiverse.Count > 0)
-                {
-                    nextGame = gamesDiverse[random.Next(gamesDiverse.Count)];
-                    gamesDiverse.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
-            }
-            else if (playedGames == 4)
-            {
-                if (gamesShooter.Count > 0)
-                {
-                    nextGame = gamesShooter[random.Next(gamesShooter.Count)];
-                    gamesShooter.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
-            }
-            else if (playedGames == 5)
-            {
-                if (gamesDiverse.Count > 0)
-                {
-                    nextGame = gamesDiverse[random.Next(gamesDiverse.Count)];
-                    gamesDiverse.Remove(nextGame);
-                }
-                else
-                {
-                    nextGame = PromptUserForGame();
-                }
+                nextGame = PromptUserForGame();
             }
 
             tournamentData.Add($"Spiel: {nextGame}");
-            currentGame = nextGame;         
+            currentGame = nextGame;
+            playedGamesList.Add(nextGame);
 
             return nextGame;
         }
@@ -459,7 +445,7 @@ namespace LanToolz2
             {
                 inputForm.Width = 120;
                 inputForm.Height = 150;
-                inputForm.Text = "Spiel eingeben";
+                inputForm.Text = "Spiel eingeben:";
                 inputForm.StartPosition = FormStartPosition.CenterScreen;
 
                 Label label = new Label() { Left = 45, Top = 20, Text = "Spiel:" };
