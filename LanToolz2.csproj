@@ -52,6 +52,9 @@
     <Compile Include="ChangeScores.Designer.cs">
       <DependentUpon>ChangeScores.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ScorePanel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,6 +89,9 @@
     </Compile>
     <EmbeddedResource Include="ChangeScores.resx">
       <DependentUpon>ChangeScores.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomDialog.resx">
+      <DependentUpon>CustomDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ScorePanel.resx">
       <DependentUpon>ScorePanel.cs</DependentUpon>

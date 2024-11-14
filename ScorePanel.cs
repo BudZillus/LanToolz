@@ -277,36 +277,83 @@ namespace LanToolz2
             SaveFile();
             UpdateResults(tournamentData);
 
-            // Check if there are more rounds to play
-            if (round < totalRounds)
+            // Show custom dialog
+            using (var dialog = new CustomDialog())
             {
-                ClearInput();
-                round++; // Increment the round number
+                var result = dialog.ShowDialog();
 
-                // Get the matchups for the next round
-                List<string> matchups = GetRoundMatchups(tournamentData, currentGame, round);
-
-                // Update the ScorePanel with the new matchups
-                UpdateScorePanel(currentGame, matchups, round);
-                UpdateScoreScreen(currentGame, matchups, round);
-            }
-            else
-            {
-                // Save the scores and move on to the next game
-                ClearInput();
-                CountWinPoints(tournamentData);
-                round = 1;
-                playedGames++;
-                if (playedGames < 6)
+                if (result == DialogResult.Yes)
                 {
-                    string nextGame = SelectNextGame();
-                    GenerateMatchups();
-                    List<string> matchups = GetRoundMatchups(tournamentData, nextGame, round);
-                    UpdateScorePanel(nextGame, matchups, round);
-                    UpdateScoreScreen(nextGame, matchups, round);
+                    // Start next round
+                    if (round < totalRounds)
+                    {
+                        ClearInput();
+                        round++;
+                        
+                        List<string> matchups = GetRoundMatchups(tournamentData, currentGame, round);
+                        
+                        UpdateScorePanel(currentGame, matchups, round);
+                        UpdateScoreScreen(currentGame, matchups, round);
+                    }
+                    else
+                    {                        
+                        ClearInput();
+                        CountWinPoints(tournamentData);
+                        round = 1;
+                        playedGames++;
+                        if (playedGames < 6)
+                        {
+                            string nextGame = SelectNextGame();
+                            GenerateMatchups();
+                            List<string> matchups = GetRoundMatchups(tournamentData, nextGame, round);
+                            UpdateScorePanel(nextGame, matchups, round);
+                            UpdateScoreScreen(nextGame, matchups, round);
+                        }
+                        else
+                        {
+                            WinnerScreen winnerScreen = new WinnerScreen(finalRanking);
+                            winnerScreen.Show();
+                        }
+                    }
                 }
-                else
+                else if (result == DialogResult.No)
+                {                    
+                    MessageBox.Show("Das Turnier wird pausiert. Drücken Sie OK, um fortzufahren.", "Pause", MessageBoxButtons.OK, MessageBoxIcon.Information);                   
+                    if (round < totalRounds)
+                    {
+                        ClearInput();
+                        round++;
+                        
+                        List<string> matchups = GetRoundMatchups(tournamentData, currentGame, round);
+                       
+                        UpdateScorePanel(currentGame, matchups, round);
+                        UpdateScoreScreen(currentGame, matchups, round);
+                    }
+                    else
+                    {                        
+                        ClearInput();
+                        CountWinPoints(tournamentData);
+                        round = 1;
+                        playedGames++;
+                        if (playedGames < 6)
+                        {
+                            string nextGame = SelectNextGame();
+                            GenerateMatchups();
+                            List<string> matchups = GetRoundMatchups(tournamentData, nextGame, round);
+                            UpdateScorePanel(nextGame, matchups, round);
+                            UpdateScoreScreen(nextGame, matchups, round);
+                        }
+                        else
+                        {
+                            WinnerScreen winnerScreen = new WinnerScreen(finalRanking);
+                            winnerScreen.Show();
+                        }
+                    }
+                }
+                else if (result == DialogResult.Cancel)
                 {
+                    // End the tournament
+                    MessageBox.Show("Das Turnier wird beendet.", "Turnier beendet", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     WinnerScreen winnerScreen = new WinnerScreen(finalRanking);
                     winnerScreen.Show();
                 }
@@ -1127,7 +1174,7 @@ namespace LanToolz2
 
         private void AnimateLabels(List<Label> labels, List<Point> endPoints)
         {
-            int duration = 200; // Duration of the animation in milliseconds
+            int duration = 150; // Duration of the animation in milliseconds
             int steps = 100; // Number of steps in the animation
             Random random = new Random();
             int circles = random.Next(3, 9); // Random number of circles (3-9)
@@ -1241,6 +1288,7 @@ namespace LanToolz2
                     currentGame = line.Substring(6).Trim();
                     round = 0;
                     playedGames++;
+                    playedGamesList.Add(line.Replace("Spiel: ", "").Trim());
                     gameInProgress = true;
                 }
                 else if (line.StartsWith("Runde"))
@@ -1252,7 +1300,7 @@ namespace LanToolz2
                     // Check if all results for the current round are entered
                     for (int j = 0; j < matchupsPerRound; j++)
                     {
-                        if (i + j + 1 >= tournamentData.Count) break; // Handle errors when the tournamentData is incomplete
+                        if (i + j + 1 >= tournamentData.Count) break;
 
                         var matchupLine = tournamentData[i + j + 1]; // +1, to check the next line
 
@@ -1316,8 +1364,11 @@ namespace LanToolz2
             UpdateScorePanel(currentGame, matchups, round);
             UpdateScoreScreen(currentGame, matchups, round);
             UpdateResults(tournamentData);
+
+            foreach (var game in playedGamesList)
+            {
+                Console.WriteLine(game);
+            }
         }
-
-
     }
 }
