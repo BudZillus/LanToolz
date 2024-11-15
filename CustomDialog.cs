@@ -21,7 +21,7 @@ public partial class CustomDialog : Form
             this.btnNextGame.Name = "btnNextGame";
             this.btnNextGame.Size = new System.Drawing.Size(75, 23);
             this.btnNextGame.TabIndex = 0;
-            this.btnNextGame.Text = "Nächstes Spiel";
+            this.btnNextGame.Text = "Weiter";
             this.btnNextGame.UseVisualStyleBackColor = true;
             // 
             // btnPause
@@ -41,7 +41,7 @@ public partial class CustomDialog : Form
             this.btnEndTournament.Name = "btnEndTournament";
             this.btnEndTournament.Size = new System.Drawing.Size(75, 23);
             this.btnEndTournament.TabIndex = 2;
-            this.btnEndTournament.Text = "Turnier beenden";
+            this.btnEndTournament.Text = "Beenden";
             this.btnEndTournament.UseVisualStyleBackColor = true;
             // 
             // CustomDialog
@@ -53,9 +53,10 @@ public partial class CustomDialog : Form
             this.Controls.Add(this.btnPause);
             this.Controls.Add(this.btnNextGame);
             this.Name = "CustomDialog";
-            this.Text = "Aktion auswählen";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Choose wisely";
             this.ResumeLayout(false);
-            this.StartPosition = FormStartPosition.CenterScreen;
+
     }
 
     private System.Windows.Forms.Button btnNextGame;

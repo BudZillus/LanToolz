@@ -335,6 +335,6 @@ namespace LanToolz2
             int gDiff = Math.Abs(color1.G - color2.G);
             int bDiff = Math.Abs(color1.B - color2.B);
             return rDiff < threshold && gDiff < threshold && bDiff < threshold;
-        }        
+        }       
     }
 }
