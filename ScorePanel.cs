@@ -313,10 +313,31 @@ namespace LanToolz2
                 
                 else if (result == DialogResult.No) // Pause the tournament
                 {
-                    //create pause timer on ScoreScreen form
+                    // show the pausePanel on scoreScreen
+                    foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
+                    {
+                        if (control is Panel panel && panel.Name == "pausePanel")
+                        {
+                            panel.Visible = true;
+                            panel.Enabled = true;
+                            panel.BringToFront();
+                        }
+                    }
 
+                    // ADD PAUSE FUNCTIONALITY
 
-                    MessageBox.Show("Das Turnier wird pausiert. Drücken Sie OK, um fortzufahren.", "Pause", MessageBoxButtons.OK, MessageBoxIcon.Information);                   
+                    MessageBox.Show("Das Turnier wird pausiert. Drücken Sie OK, um fortzufahren.", "Pause", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Hide the PausePanel on scoreScreen
+                    foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
+                    {
+                        if (control is Panel panel && panel.Name == "pausePanel")
+                        {
+                            panel.Visible = false;
+                            panel.Enabled = false;
+                        }
+                    }
+
                     if (round < totalRounds)
                     {
                         ClearInput();
@@ -840,7 +861,6 @@ namespace LanToolz2
                 }
             }
         }
-
 
         private void CountWinPoints(List<string> tournamentData)
         {

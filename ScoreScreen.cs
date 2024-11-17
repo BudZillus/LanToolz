@@ -313,6 +313,33 @@ namespace LanToolz2
             // Adjust the form height to fit all controls
             formHeight = infoBox.Bottom + 40; // Add some padding at the bottom
             this.ClientSize = new Size(screenWidth, screenHeight);
+
+            //create pause timer on ScoreScreen form
+            Panel pausePanel = new Panel();
+            pausePanel.Name = "pausePanel";
+            pausePanel.Width = 700;
+            pausePanel.Height = 700;
+            pausePanel.Location = new Point((this.ClientSize.Width - pausePanel.Width) / 2, (this.ClientSize.Height - pausePanel.Height) / 2);
+            pausePanel.BackColor = Color.FromArgb(255, 255, 255);
+            this.Controls.Add(pausePanel);
+
+            Label pauseLabel = new Label();
+            pauseLabel.Name = "pauseLabel";
+            pauseLabel.Text = "Pause";
+            pauseLabel.AutoSize = true;
+            pauseLabel.Font = new Font("Arial", 36, FontStyle.Bold);
+            pauseLabel.Location = new Point((pausePanel.Width - pauseLabel.PreferredWidth) / 2, 50);
+            pausePanel.Controls.Add(pauseLabel);
+
+            Label pauseTimeLabel = new Label();
+            pauseTimeLabel.Name = "pauseTimeLabel";
+            pauseTimeLabel.Text = "00:00";
+            pauseTimeLabel.AutoSize = true;
+            pauseTimeLabel.Font = new Font("Arial", 26, FontStyle.Bold);
+            pauseTimeLabel.Location = new Point((pausePanel.Width - pauseTimeLabel.PreferredWidth) / 2, (pausePanel.Height - pauseTimeLabel.Height) / 2);
+            pausePanel.Controls.Add(pauseTimeLabel); 
+
+            pausePanel.Hide();
         }
 
         private bool IsTooBright(Color color)
