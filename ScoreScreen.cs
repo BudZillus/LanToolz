@@ -317,10 +317,9 @@ namespace LanToolz2
             //create pause timer on ScoreScreen form
             Panel pausePanel = new Panel();
             pausePanel.Name = "pausePanel";
-            pausePanel.Width = 700;
-            pausePanel.Height = 700;
-            pausePanel.Location = new Point((this.ClientSize.Width - pausePanel.Width) / 2, (this.ClientSize.Height - pausePanel.Height) / 2);
-            pausePanel.BackColor = Color.FromArgb(255, 255, 255);
+            pausePanel.Width = panelMidSpace;
+            pausePanel.Height = 900;
+            pausePanel.Location = new Point((this.ClientSize.Width - pausePanel.Width) / 2, clockLabel.Location.Y + clockLabel.Height + 10);            
             this.Controls.Add(pausePanel);
 
             Label pauseLabel = new Label();
@@ -328,7 +327,7 @@ namespace LanToolz2
             pauseLabel.Text = "Pause";
             pauseLabel.AutoSize = true;
             pauseLabel.Font = new Font("Arial", 36, FontStyle.Bold);
-            pauseLabel.Location = new Point((pausePanel.Width - pauseLabel.PreferredWidth) / 2, 50);
+            pauseLabel.Location = new Point((pausePanel.Width - pauseLabel.PreferredWidth) / 2, 250);
             pausePanel.Controls.Add(pauseLabel);
 
             Label pauseTimeLabel = new Label();

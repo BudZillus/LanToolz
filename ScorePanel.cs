@@ -28,8 +28,7 @@ namespace LanToolz2
         int round = 1;
         bool restored = false;
         private string currentGame;
-
-        private int pauseDuration;
+        
         private System.Windows.Forms.Timer pauseTimer;
 
         public List<string> tournamentData = new List<string>();
@@ -282,196 +281,159 @@ namespace LanToolz2
             List<string> matchups = GetRoundMatchups(tournamentData, currentGame, round);
             UpdateScoreScreen(currentGame, matchups, round);
 
-            // Show custom dialog
-            using (var dialog = new CustomDialog())
+            if (round < totalRounds)
             {
-                var result = dialog.ShowDialog();
+                ClearInput();
+                round++;
+                matchups = GetRoundMatchups(tournamentData, currentGame, round);
+                UpdateScorePanel(currentGame, matchups, round);
+                UpdateScoreScreen(currentGame, matchups, round);
+            }
+            else
+            {
+                ClearInput();
+                CountWinPoints(tournamentData);
+                round = 1;
+                playedGames++;
 
-                if (result == DialogResult.Yes) // Start next round
+                using (var dialog = new CustomDialog())
                 {
-                    if (round < totalRounds)
+                    var result = dialog.ShowDialog();
+
+                    if (result == DialogResult.Yes)
                     {
-                        ClearInput();
-                        round++;
-
-                        matchups = GetRoundMatchups(tournamentData, currentGame, round);
-
-                        UpdateScorePanel(currentGame, matchups, round);
-                        UpdateScoreScreen(currentGame, matchups, round);
+                        StartNextRound();
                     }
-                    else
+                    else if (result == DialogResult.No)
                     {
-                        ClearInput();
-                        CountWinPoints(tournamentData);
-                        round = 1;
-                        playedGames++;
-
-                        string nextGame = SelectNextGame();
-                        GenerateMatchups();
-                        matchups = GetRoundMatchups(tournamentData, nextGame, round);
-                        UpdateScorePanel(nextGame, matchups, round);
-                        UpdateScoreScreen(nextGame, matchups, round);
+                        PauseTournament();
                     }
-                }
-
-                else if (result == DialogResult.No) // Pause the tournament
-                {
-                    // show the pausePanel on scoreScreen
-                    foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
+                    else if (result == DialogResult.Cancel)
                     {
-                        if (control is Panel panel && panel.Name == "pausePanel")
-                        {
-                            panel.Visible = true;
-                            panel.Enabled = true;
-                            panel.BringToFront();
-                        }
+                        EndTournament();
                     }
-                    
-
-                    // Ask user for pause duration
-                    string input = Prompt.ShowDialog("Bitte geben Sie die Pausenlänge in Minuten ein:", "Pausenlänge", "0");
-                    if (int.TryParse(input, out int pauseDuration))
-                    {
-                        // Create new Panel for unpause button
-                        Panel pausePanel = new Panel();
-                        pausePanel.Name = "pausePanel";
-                        pausePanel.Width = this.ClientSize.Width;
-                        pausePanel.Height = this.ClientSize.Height;
-                        pausePanel.BackColor = Color.FromArgb(128, Color.Black);
-                        pausePanel.Location = new Point(0, 0);
-                        pausePanel.Visible = true;
-                        pausePanel.Enabled = true;
-                        this.Controls.Add(pausePanel);
-                        pausePanel.BringToFront();
-
-                        // Create new Button for unpause
-                        Button unpauseButton = new Button();
-                        unpauseButton.Text = "Weiter";
-                        unpauseButton.AutoSize = true;
-                        unpauseButton.Font = new Font("Arial", 12, FontStyle.Bold);
-                        unpauseButton.Location = new Point((this.ClientSize.Width - unpauseButton.Width) / 2, (this.ClientSize.Height - unpauseButton.Height) / 2);
-                        this.Controls.Add(unpauseButton);
-                        unpauseButton.BringToFront();                        
-                        unpauseButton.Click += (s, args) =>
-                        {
-                            pauseDuration = 0;
-                            pauseTimer.Stop();
-                            unpauseButton.Hide();
-                            pausePanel.Hide();
-                            foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
-                            {
-                                if (control is Panel panel && panel.Name == "pausePanel")
-                                {
-                                    panel.Visible = false;
-                                    panel.Enabled = false;
-                                }
-                            }
-                            if (round < totalRounds)
-                            {
-                                ClearInput();
-                                round++;
-
-                                matchups = GetRoundMatchups(tournamentData, currentGame, round);
-
-                                UpdateScorePanel(currentGame, matchups, round);
-                                UpdateScoreScreen(currentGame, matchups, round);
-                            }
-                            else
-                            {
-                                ClearInput();
-                                CountWinPoints(tournamentData);
-                                round = 1;
-                                playedGames++;
-
-                                string nextGame = SelectNextGame();
-                                GenerateMatchups();
-                                matchups = GetRoundMatchups(tournamentData, nextGame, round);
-                                UpdateScorePanel(nextGame, matchups, round);
-                                UpdateScoreScreen(nextGame, matchups, round);
-                            }
-                        };
-
-                        // Convert minutes to seconds
-                        pauseDuration *= 60;
-
-                        // Set the pauseTimeLabel text
-                        Label pauseTimeLabel = Application.OpenForms["ScoreScreen"].Controls.Find("pauseTimeLabel", true).FirstOrDefault() as Label;
-                        if (pauseTimeLabel != null)
-                        {
-                            pauseTimeLabel.Text = $"{pauseDuration / 60}:00";
-                        }
-
-                        // Start the timer
-                        pauseTimer = new System.Windows.Forms.Timer();
-                        pauseTimer.Interval = 1000; // 1 Sekunde
-                        pauseTimer.Tick += (s, args) =>
-                        {
-                            if (pauseDuration > 0)
-                            {
-                                pauseDuration--;
-                                int minutes = pauseDuration / 60;
-                                int seconds = pauseDuration % 60;
-                                pauseTimeLabel.Text = $"{minutes:D2}:{seconds:D2}";
-                            }
-                            else
-                            {
-                                pauseTimer.Stop();
-
-                                MessageBox.Show("Die Pause ist beendet. Das Turnier wird fortgesetzt.", "Pause beendet", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                // Verstecke das PausePanel auf dem ScoreScreen
-                                foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
-                                {
-                                    if (control is Panel panel && panel.Name == "pausePanel")
-                                    {
-                                        panel.Visible = false;
-                                        panel.Enabled = false;
-                                    }
-                                }
-
-                                pausePanel.Hide();
-                                unpauseButton.Hide();
-
-                                if (round < totalRounds)
-                                {
-                                    ClearInput();
-                                    round++;
-
-                                    matchups = GetRoundMatchups(tournamentData, currentGame, round);
-
-                                    UpdateScorePanel(currentGame, matchups, round);
-                                    UpdateScoreScreen(currentGame, matchups, round);
-                                }
-                                else
-                                {
-                                    ClearInput();
-                                    CountWinPoints(tournamentData);
-                                    round = 1;
-                                    playedGames++;
-
-                                    string nextGame = SelectNextGame();
-                                    GenerateMatchups();
-                                    matchups = GetRoundMatchups(tournamentData, nextGame, round);
-                                    UpdateScorePanel(nextGame, matchups, round);
-                                    UpdateScoreScreen(nextGame, matchups, round);
-                                }
-                            }
-                        };
-                        pauseTimer.Start();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Ungültige Eingabe. Bitte geben Sie eine gültige Zahl ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            
-                else if (result == DialogResult.Cancel) // End the tournament
-                {
-                    MessageBox.Show("Das Turnier wird beendet.", "Turnier beendet", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    WinnerScreen winnerScreen = new WinnerScreen(finalRanking);
-                    winnerScreen.Show();
                 }
             }
+        }
+
+        private void StartNextRound()
+        {
+            ClearInput();
+            CountWinPoints(tournamentData);
+            round = 1;
+            playedGames++;
+
+            string nextGame = SelectNextGame();
+            GenerateMatchups();
+            List<string> matchups = GetRoundMatchups(tournamentData, nextGame, round);
+            UpdateScorePanel(nextGame, matchups, round);
+            UpdateScoreScreen(nextGame, matchups, round);
+        }
+
+        private void PauseTournament()
+        {
+            foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
+            {
+                if (control is Panel panel && panel.Name == "pausePanel")
+                {
+                    panel.Visible = true;
+                    panel.Enabled = true;
+                    panel.BringToFront();
+                }
+            }
+
+            string input = Prompt.ShowDialog("Pause: ", "Pausenlänge", "15");
+            if (int.TryParse(input, out int pauseDuration))
+            {
+                ShowPausePanel(pauseDuration);
+            }
+            else
+            {
+                MessageBox.Show("Ungültige Eingabe. Bitte geben Sie eine gültige Zahl ein.", "Fehler", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ShowPausePanel(int pauseDuration)
+        {
+            Panel pausePanel = new Panel
+            {
+                Name = "pausePanel",
+                Width = this.ClientSize.Width,
+                Height = this.ClientSize.Height,
+                BackColor = Color.FromArgb(128, Color.Black),
+                Location = new Point(0, 0),
+                Visible = true,
+                Enabled = true
+            };
+            this.Controls.Add(pausePanel);
+            pausePanel.BringToFront();
+
+            Button unpauseButton = new Button
+            {
+                Text = "Weiter",
+                AutoSize = true,
+                Font = new Font("Arial", 12, FontStyle.Bold),                
+            };
+            this.Controls.Add(unpauseButton);
+            unpauseButton.Location = new Point((this.ClientSize.Width - unpauseButton.Width) / 2, (this.ClientSize.Height - unpauseButton.Height) / 2);
+            unpauseButton.BringToFront();
+            unpauseButton.Click += (s, args) =>
+            {
+                pauseDuration = 0;
+                pauseTimer.Stop();
+                unpauseButton.Hide();
+                pausePanel.Hide();
+                HidePausePanelOnScoreScreen();
+                StartNextRound();
+            };
+
+            pauseDuration *= 60;
+            Label pauseTimeLabel = Application.OpenForms["ScoreScreen"].Controls.Find("pauseTimeLabel", true).FirstOrDefault() as Label;
+            if (pauseTimeLabel != null)
+            {
+                pauseTimeLabel.Text = $"{pauseDuration / 60}:00";
+            }
+
+            pauseTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+            pauseTimer.Tick += (s, args) =>
+            {
+                if (pauseDuration > 0)
+                {
+                    pauseDuration--;
+                    int minutes = pauseDuration / 60;
+                    int seconds = pauseDuration % 60;
+                    pauseTimeLabel.Text = $"{minutes:D2}:{seconds:D2}";
+                }
+                else
+                {
+                    pauseTimer.Stop();
+                    MessageBox.Show("Die Pause ist beendet. Das Turnier wird fortgesetzt.", "Pause beendet", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    HidePausePanelOnScoreScreen();
+                    pausePanel.Hide();
+                    unpauseButton.Hide();
+                    StartNextRound();
+                }
+            };
+            pauseTimer.Start();
+        }
+
+        private void HidePausePanelOnScoreScreen()
+        {
+            foreach (Control control in Application.OpenForms["ScoreScreen"].Controls)
+            {
+                if (control is Panel panel && panel.Name == "pausePanel")
+                {
+                    panel.Visible = false;
+                    panel.Enabled = false;
+                }
+            }
+        }
+
+        private void EndTournament()
+        {
+            MessageBox.Show("Das Turnier wird beendet.", "Turnier beendet", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            WinnerScreen winnerScreen = new WinnerScreen(finalRanking);
+            winnerScreen.Show();
         }
 
         public static class Prompt
@@ -480,19 +442,30 @@ namespace LanToolz2
             {
                 Form prompt = new Form()
                 {
-                    Width = 500,
+                    Width = 150,
                     Height = 150,
                     FormBorderStyle = FormBorderStyle.FixedDialog,
                     Text = caption,
                     StartPosition = FormStartPosition.CenterScreen
                 };
-                Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
-                TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400, Text = defaultValue };
-                Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
-                confirmation.Click += (sender, e) => { prompt.Close(); };
-                prompt.Controls.Add(textLabel);
-                prompt.Controls.Add(textBox);
-                prompt.Controls.Add(confirmation);
+
+                TableLayoutPanel layout = new TableLayoutPanel()
+                {
+                    Dock = DockStyle.Fill,
+                    ColumnCount = 1,
+                    RowCount = 3,
+                    AutoSize = true
+                };
+
+                Label textLabel = new Label() { Text = text, Anchor = AnchorStyles.None, TextAlign = ContentAlignment.MiddleCenter };
+                TextBox textBox = new TextBox() { Text = defaultValue, Anchor = AnchorStyles.None, Width = 30, TextAlign = HorizontalAlignment.Center };
+                Button confirmation = new Button() { Text = "OK", Anchor = AnchorStyles.None, DialogResult = DialogResult.OK };
+
+                layout.Controls.Add(textLabel, 0, 0);
+                layout.Controls.Add(textBox, 0, 1);
+                layout.Controls.Add(confirmation, 0, 2);
+
+                prompt.Controls.Add(layout);
                 prompt.AcceptButton = confirmation;
 
                 return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : defaultValue;
@@ -561,13 +534,6 @@ namespace LanToolz2
             List<string> games1 = new List<string>();
             List<string> games2 = new List<string>();
             List<string> games3 = new List<string>();
-            
-            foreach (var game in playedGamesList)
-            {
-                games1.Remove(game);
-                games2.Remove(game);
-                games3.Remove(game);
-            }
 
             if (File.Exists(gameListFilePath))
             {
@@ -578,6 +544,13 @@ namespace LanToolz2
                     games2 = lines[1].Split(';').ToList();
                     games3 = lines[2].Split(';').ToList();
                 }
+            }
+            
+            foreach (var game in playedGamesList)
+            {
+                games1.Remove(game);
+                games2.Remove(game);
+                games3.Remove(game);
             }
 
             string nextGame = string.Empty;
