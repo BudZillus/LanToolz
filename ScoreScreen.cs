@@ -22,9 +22,6 @@ namespace LanToolz2
         public ScoreScreen(List<List<string>> teams, int teamCount, int playerPerTeam, string headline)
         {
             InitializeComponent();
-            this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
-            this.FormBorderStyle = FormBorderStyle.None; // Remove the border
-            this.WindowState = FormWindowState.Maximized; // Maximize the window
 
             // Check if a second screen is available
             if (Screen.AllScreens.Length > 1)
@@ -33,6 +30,9 @@ namespace LanToolz2
                 Screen secondScreen = Screen.AllScreens[1];
                 this.Location = secondScreen.Bounds.Location;
                 this.Size = secondScreen.Bounds.Size; // Set the size to the second screen's size
+                this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
+                this.FormBorderStyle = FormBorderStyle.None; // Remove the border
+                this.WindowState = FormWindowState.Maximized; // Maximize the window
             }
             else
             {

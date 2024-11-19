@@ -21,9 +21,6 @@ namespace LanToolz2
         public WinnerScreen(Dictionary<string, int> finalRanking)
         {
             InitializeComponent();
-            this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
-            this.FormBorderStyle = FormBorderStyle.None; // Remove the border
-            this.WindowState = FormWindowState.Maximized; // Maximize the window
 
             // Check if a second screen is available
             if (Screen.AllScreens.Length > 1)
@@ -32,6 +29,9 @@ namespace LanToolz2
                 Screen secondScreen = Screen.AllScreens[1];
                 this.Location = secondScreen.Bounds.Location;
                 this.Size = secondScreen.Bounds.Size; // Set the size to the second screen's size
+                this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
+                this.FormBorderStyle = FormBorderStyle.None; // Remove the border
+                this.WindowState = FormWindowState.Maximized; // Maximize the window
             }
             else
             {
@@ -40,14 +40,12 @@ namespace LanToolz2
             }
 
             this.finalRanking = finalRanking;
-            this.Load += WinnerScreen_Load;
+            createRanking(finalRanking);
         }
 
         private void WinnerScreen_Load(object sender, EventArgs e)
         {
-            
-
-            createRanking(finalRanking);
+                        
         }
 
         private void createRanking(Dictionary<string, int> finalRanking)
