@@ -21,14 +21,32 @@ namespace LanToolz2
         public WinnerScreen(Dictionary<string, int> finalRanking)
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
+            this.FormBorderStyle = FormBorderStyle.None; // Remove the border
+            this.WindowState = FormWindowState.Maximized; // Maximize the window
+
+            // Check if a second screen is available
+            if (Screen.AllScreens.Length > 1)
+            {
+                // Get the bounds of the second screen
+                Screen secondScreen = Screen.AllScreens[1];
+                this.Location = secondScreen.Bounds.Location;
+                this.Size = secondScreen.Bounds.Size; // Set the size to the second screen's size
+            }
+            else
+            {
+                // If no second screen, center on the primary screen
+                this.StartPosition = FormStartPosition.CenterScreen;
+            }
 
             this.finalRanking = finalRanking;
-            this.Width = 1920;
-            this.Height = 1080;
+            this.Load += WinnerScreen_Load;
         }
 
         private void WinnerScreen_Load(object sender, EventArgs e)
         {
+            
+
             createRanking(finalRanking);
         }
 
@@ -36,7 +54,7 @@ namespace LanToolz2
         {
             // Sort the teams by their points in descending order
             var sortedTeams = finalRanking.OrderByDescending(kvp => kvp.Value).ToList();
-                       
+
             int maxWidth = this.ClientSize.Width;
             int maxHeight = this.ClientSize.Height;
 

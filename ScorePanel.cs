@@ -531,26 +531,26 @@ namespace LanToolz2
             string gameListFilePath = Path.Combine(dataFolder, "games.csv");
 
             List<List<string>> allGamesLists = new List<List<string>>();
-            List<string> games1 = new List<string>();
-            List<string> games2 = new List<string>();
-            List<string> games3 = new List<string>();
+            List<string> shooter = new List<string>();
+            List<string> strategy = new List<string>();
+            List<string> other = new List<string>();
 
             if (File.Exists(gameListFilePath))
             {
                 var lines = File.ReadAllLines(gameListFilePath);
                 if (lines.Length >= 3)
                 {
-                    games1 = lines[0].Split(';').ToList();
-                    games2 = lines[1].Split(';').ToList();
-                    games3 = lines[2].Split(';').ToList();
+                    shooter = lines[0].Split(';').ToList();
+                    strategy = lines[1].Split(';').ToList();
+                    other = lines[2].Split(';').ToList();
                 }
             }
             
             foreach (var game in playedGamesList)
             {
-                games1.Remove(game);
-                games2.Remove(game);
-                games3.Remove(game);
+                shooter.Remove(game);
+                strategy.Remove(game);
+                other.Remove(game);
             }
 
             string nextGame = string.Empty;
@@ -560,22 +560,22 @@ namespace LanToolz2
             switch (playedGames)
             {
                 case 0:
-                    selectedGamesList = games1;
+                    selectedGamesList = shooter;
                     break;
                 case 1:
-                    selectedGamesList = games3;
+                    selectedGamesList = other;
                     break;
                 case 2:
-                    selectedGamesList = games2;
+                    selectedGamesList = strategy;
                     break;
                 case 3:
-                    selectedGamesList = games3;
+                    selectedGamesList = other;
                     break;
                 case 4:
-                    selectedGamesList = games1;
+                    selectedGamesList = shooter;
                     break;
                 case 5:
-                    selectedGamesList = games2;
+                    selectedGamesList = strategy;
                     break;
             }
 
