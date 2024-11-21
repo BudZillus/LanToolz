@@ -236,13 +236,14 @@ namespace LanToolz2
                 {
                     foreach (Control control2 in Application.OpenForms["ScoreScreen"].Controls)
                     {
-                        if (control2 is RichTextBox infoBox2)
+                        if (control2 is Label label)
                         {
-                            // Add TeamOverview RichTextBox text and center alignment
-                            infoBox2.Text = infoBox.Text;
-                            infoBox2.SelectAll();
-                            infoBox2.SelectionAlignment = HorizontalAlignment.Center;
-                            infoBox2.DeselectAll();
+                            if (label.Name == "infoBox")
+                            {
+                                label.Text = infoBox.Text;
+                                label.TextAlign = ContentAlignment.MiddleCenter;
+                                label.Location = new Point((label.Parent.ClientSize.Width - label.Width) / 2, label.Location.Y);
+                            }
                         }
                     }
                 }
@@ -293,8 +294,7 @@ namespace LanToolz2
             {
                 ClearInput();
                 CountWinPoints(tournamentData);
-                round = 1;
-                playedGames++;
+                round = 1;                
 
                 using (var dialog = new CustomDialog())
                 {
@@ -320,8 +320,7 @@ namespace LanToolz2
         {
             ClearInput();
             CountWinPoints(tournamentData);
-            round = 1;
-            playedGames++;
+            round = 1;            
 
             string nextGame = SelectNextGame();
             GenerateMatchups();
@@ -538,14 +537,11 @@ namespace LanToolz2
             if (File.Exists(gameListFilePath))
             {
                 var lines = File.ReadAllLines(gameListFilePath);
-                if (lines.Length >= 3)
-                {
-                    shooter = lines[0].Split(';').ToList();
-                    strategy = lines[1].Split(';').ToList();
-                    other = lines[2].Split(';').ToList();
-                }
+                shooter = lines[0].Split(';').ToList();
+                strategy = lines[1].Split(';').ToList();
+                other = lines[2].Split(';').ToList();
             }
-            
+
             foreach (var game in playedGamesList)
             {
                 shooter.Remove(game);
@@ -553,9 +549,29 @@ namespace LanToolz2
                 other.Remove(game);
             }
 
+            // OUTPUT: shooter, strategy, other to console
+            Console.WriteLine("/////////////////////////");
+            Console.WriteLine("Shooter:");
+            foreach (var game in shooter)
+            {
+                Console.WriteLine(game);
+            }
+            Console.WriteLine("Strategy:");
+            foreach (var game in strategy)
+            {
+                Console.WriteLine(game);
+            }
+            Console.WriteLine("Other:");
+            foreach (var game in other)
+            {
+                Console.WriteLine(game);
+            }
+
             string nextGame = string.Empty;
             Random random = new Random();
 
+            //DEBUG: output played games
+            Console.WriteLine(playedGames);
             List<string> selectedGamesList = null;
             switch (playedGames)
             {
@@ -592,6 +608,9 @@ namespace LanToolz2
             tournamentData.Add($"Spiel: {nextGame}");
             currentGame = nextGame;
             playedGamesList.Add(nextGame);
+
+            // Inkrementieren von playedGames nur hier
+            playedGames++;
 
             return nextGame;
         }
@@ -830,6 +849,33 @@ namespace LanToolz2
                                 label.Location = new Point((scoreScreenForm.ClientSize.Width - label.Width) / 2, label.Location.Y);
                             }
                         }
+                    }
+
+                    else if (label.Name.StartsWith("showPlayedGames"))
+                    {
+                        StringBuilder playedGamesText = new StringBuilder();
+                        string separator = ", ";
+                        int maxWidth = 800;
+                        int currentLineWidth = 0;
+
+                        for (int i = 0; i < playedGamesList.Count; i++)
+                        {
+                            string game = playedGamesList[i] + (i < playedGamesList.Count - 1 ? separator : "");
+                            Size textSize = TextRenderer.MeasureText(game, label.Font);
+
+                            if (currentLineWidth + textSize.Width > maxWidth)
+                            {
+                                playedGamesText.AppendLine();
+                                currentLineWidth = 0;
+                            }
+
+                            playedGamesText.Append(game);
+                            currentLineWidth += textSize.Width;
+                        }
+
+                        label.Text = playedGamesText.ToString();
+                        label.TextAlign = ContentAlignment.MiddleCenter;
+                        label.Location = new Point((scoreScreenForm.ClientSize.Width - label.PreferredWidth) / 2, scoreScreenForm.ClientSize.Height - label.PreferredHeight - 10);
                     }
                 }
             }
@@ -1148,10 +1194,14 @@ namespace LanToolz2
                 }
                 if (control is Label headLine)
                 {
-                    headLine.Text = tempHeadline;
-                    // Correct the position of the Headline label
-                    headLine.Location = new Point((scoreScreen.ClientSize.Width - headLine.Width) / 2, headLine.Location.Y);
+                    if (control.Name.StartsWith("headLine"))
+                    {
+                        control.Text = tempHeadline;
+                        // Correct the position of the Headline label
+                        control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
+                    }
                 }
+
                 if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
                 {
                     matchupLabel.Visible = false;
@@ -1225,7 +1275,7 @@ namespace LanToolz2
                 revealedPlayers.UnionWith(newLabels.Select(label => label.Text));
             }
 
-            // Show the player labels again
+            // Show the labels again
             if (gameLabel != null) gameLabel.Visible = true;
             if (roundLabel != null) roundLabel.Visible = true;
 
@@ -1235,11 +1285,11 @@ namespace LanToolz2
                 {
                     matchupLabel.Visible = true;
                 }
-                if (control is Label headLine)
+                else if (control.Name.StartsWith("headLine"))
                 {
-                    headLine.Text = headline;
+                    control.Text = headline;
                     // Correct the position of the Headline label
-                    headLine.Location = new Point((scoreScreen.ClientSize.Width - headLine.Width) / 2, headLine.Location.Y);
+                    control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
                 }
             }
         }

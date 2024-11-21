@@ -22,6 +22,8 @@ namespace LanToolz2
         public ScoreScreen(List<List<string>> teams, int teamCount, int playerPerTeam, string headline)
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.Manual; 
+            this.FormBorderStyle = FormBorderStyle.None;
 
             // Check if a second screen is available
             if (Screen.AllScreens.Length > 1)
@@ -29,10 +31,8 @@ namespace LanToolz2
                 // Get the bounds of the second screen
                 Screen secondScreen = Screen.AllScreens[1];
                 this.Location = secondScreen.Bounds.Location;
-                this.Size = secondScreen.Bounds.Size; // Set the size to the second screen's size
-                this.StartPosition = FormStartPosition.Manual; // Set to manual to control the position
-                this.FormBorderStyle = FormBorderStyle.None; // Remove the border
-                this.WindowState = FormWindowState.Maximized; // Maximize the window
+                this.Size = secondScreen.Bounds.Size;
+                this.WindowState = FormWindowState.Maximized;
             }
             else
             {
@@ -266,7 +266,7 @@ namespace LanToolz2
                 clockLabel.Text = DateTime.Now.ToString("HH:mm:ss"); // Refresh the text
                 clockLabel.Location = new Point((screenWidth - clockLabel.PreferredWidth) / 2, headLine.Bottom + 20); // Refresh the location
             };
-            timer.Start(); // Start the timer
+            timer.Start(); 
 
             // Add current game label
             Label currentGameLabel = new Label();
@@ -311,24 +311,32 @@ namespace LanToolz2
                 matchupLabelTop = matchupLabel.Bottom + 20; // Update the top position for the next matchup label
             }
 
-            // Add info Box
-            RichTextBox infoBox = new RichTextBox();
-            infoBox.Name = "infobox";
-            infoBox.Font = new Font("Arial", 18, FontStyle.Bold);
-            infoBox.ReadOnly = true;
-            infoBox.TabStop = false;
-            infoBox.BorderStyle = BorderStyle.None;
-            infoBox.Width = 300;
-            infoBox.Height = 300;
-            infoBox.SelectionProtected = true;
+            // Add info Label
+            Label infoLabel = new Label();
+            infoLabel.Name = "infoBox";
+            infoLabel.Text = "";
+            infoLabel.AutoSize = true;
+            infoLabel.Font = new Font("Arial", 16, FontStyle.Bold);
+            infoLabel.TextAlign = ContentAlignment.MiddleCenter;
+            infoLabel.Location = new Point((screenWidth - infoLabel.PreferredWidth) / 2, matchupLabelTop + 20);
+            this.Controls.Add(infoLabel);
 
             // Set the location of the RichTextBox
-            infoBox.Location = new Point((screenWidth - infoBox.Width) / 2, matchupLabelTop + 80);
-            this.Controls.Add(infoBox);
+            infoLabel.Location = new Point((screenWidth - infoLabel.Width) / 2, matchupLabelTop + 80);
+            this.Controls.Add(infoLabel);
 
             // Adjust the form height to fit all controls
-            formHeight = infoBox.Bottom + 40; // Add some padding at the bottom
+            formHeight = infoLabel.Bottom + 40; // Add some padding at the bottom
             this.ClientSize = new Size(screenWidth, screenHeight);
+
+            // Add Played Games label
+            Label playedGames = new Label();
+            playedGames.Name = "showPlayedGames";
+            playedGames.Text = "";
+            playedGames.AutoSize = true;
+            playedGames.Font = new Font("Arial", 16, FontStyle.Bold);
+            playedGames.Location = new Point((this.Width - playedGames.PreferredWidth) / 2, this.ClientSize.Height - playedGames.Height - 10);
+            this.Controls.Add(playedGames);
 
             //create pause timer on ScoreScreen form
             Panel pausePanel = new Panel();
