@@ -62,8 +62,11 @@ namespace LanToolz2
             CreateScorePanelLayout(numberOfMatchups, teamCount);
 
             if (!restored)
-            {                
+            {   
+                HideScoreScreenInfo();
+                MessageBox.Show("Drücke 'OK' um die Teams zu enthüllen.", "LanToolz2", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 RevealPlayers();
+                ShowScoreScreenInfo();
 
                 string nextGame = SelectNextGame();
                 GenerateMatchups();
@@ -74,6 +77,104 @@ namespace LanToolz2
             else
             {                
                 RestoreTournamentState();
+            }
+        }
+
+        private void HideScoreScreenInfo()
+        {
+            ScoreScreen scoreScreen = Application.OpenForms["ScoreScreen"] as ScoreScreen;
+            if (scoreScreen == null) return;
+
+            // Hide the player labels
+            foreach (Control control in scoreScreen.Controls)
+            {
+                if (control is Panel panel && panel.Name.StartsWith("teamPanel"))
+                {
+                    foreach (Control panelControl in panel.Controls)
+                    {
+                        if (panelControl is Label playerLabel && playerLabel.Name.StartsWith("playerLabel"))
+                        {
+                            playerLabel.Visible = false;
+                        }
+                    }
+                }
+                if (control is Label headLine)
+                {
+                    if (control.Name.StartsWith("headLine"))
+                    {
+                        control.Text = tempHeadline;
+                        // Correct the position of the Headline label
+                        control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
+                    }
+                }
+
+                if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
+                {
+                    matchupLabel.Visible = false;
+                }
+            }
+
+            // Hide the MatchupLabel, GameLabel and RoundLabel
+            Label gameLabel = scoreScreen.Controls.Find("gameLabel", true).FirstOrDefault() as Label;
+            Label roundLabel = scoreScreen.Controls.Find("roundLabel", true).FirstOrDefault() as Label;
+
+            if (gameLabel != null) gameLabel.Visible = false;
+            if (roundLabel != null) roundLabel.Visible = false;
+        }
+
+        private void ShowScoreScreenInfo()
+        {
+            ScoreScreen scoreScreen = Application.OpenForms["ScoreScreen"] as ScoreScreen;
+            if (scoreScreen == null) return;
+
+            // Hide the player labels
+            foreach (Control control in scoreScreen.Controls)
+            {
+                if (control is Panel panel && panel.Name.StartsWith("teamPanel"))
+                {
+                    foreach (Control panelControl in panel.Controls)
+                    {
+                        if (panelControl is Label playerLabel && playerLabel.Name.StartsWith("playerLabel"))
+                        {
+                            playerLabel.Visible = true;
+                        }
+                    }
+                }
+                if (control is Label headLine)
+                {
+                    if (control.Name.StartsWith("headLine"))
+                    {
+                        control.Text = tempHeadline;
+                        // Correct the position of the Headline label
+                        control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
+                    }
+                }
+
+                if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
+                {
+                    matchupLabel.Visible = true;
+                }
+            }
+
+            // Show the MatchupLabel, GameLabel and RoundLabel
+            Label gameLabel = scoreScreen.Controls.Find("gameLabel", true).FirstOrDefault() as Label;
+            Label roundLabel = scoreScreen.Controls.Find("roundLabel", true).FirstOrDefault() as Label;
+
+            if (gameLabel != null) gameLabel.Visible = true;
+            if (roundLabel != null) roundLabel.Visible = true;
+
+            foreach (Control control in scoreScreen.Controls)
+            {
+                if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
+                {
+                    matchupLabel.Visible = true;
+                }
+                else if (control.Name.StartsWith("headLine"))
+                {
+                    control.Text = headline;
+                    // Correct the position of the Headline label
+                    control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
+                }
             }
         }
 
@@ -1177,43 +1278,7 @@ namespace LanToolz2
         private void RevealPlayers()
         {
             ScoreScreen scoreScreen = Application.OpenForms["ScoreScreen"] as ScoreScreen;
-            if (scoreScreen == null) return;
-
-            // Hide the player labels
-            foreach (Control control in scoreScreen.Controls)
-            {
-                if (control is Panel panel && panel.Name.StartsWith("teamPanel"))
-                {
-                    foreach (Control panelControl in panel.Controls)
-                    {
-                        if (panelControl is Label playerLabel && playerLabel.Name.StartsWith("playerLabel"))
-                        {
-                            playerLabel.Visible = false;
-                        }
-                    }
-                }
-                if (control is Label headLine)
-                {
-                    if (control.Name.StartsWith("headLine"))
-                    {
-                        control.Text = tempHeadline;
-                        // Correct the position of the Headline label
-                        control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
-                    }
-                }
-
-                if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
-                {
-                    matchupLabel.Visible = false;
-                }
-            }
-
-            // Hide the MatchupLabel, GameLabel and RoundLabel
-            Label gameLabel = scoreScreen.Controls.Find("gameLabel", true).FirstOrDefault() as Label;
-            Label roundLabel = scoreScreen.Controls.Find("roundLabel", true).FirstOrDefault() as Label;
-
-            if (gameLabel != null) gameLabel.Visible = false;
-            if (roundLabel != null) roundLabel.Visible = false;
+            if (scoreScreen == null) return;            
 
             // Create a new Clock label
             Label clockLabel = scoreScreen.Controls.Find("clockLabel", true).FirstOrDefault() as Label;
@@ -1253,9 +1318,6 @@ namespace LanToolz2
                     endPoints.Add(endPoint);
                 }
 
-                // Create a MessageBox to reveal the players
-                MessageBox.Show("OK zum enthüllen der nächsten Spieler", "Spieler enthüllen", MessageBoxButtons.OK);
-
                 // Animate the labels
                 AnimateLabels(newLabels, endPoints);
 
@@ -1273,24 +1335,6 @@ namespace LanToolz2
 
                 // Add the revealed players to the set
                 revealedPlayers.UnionWith(newLabels.Select(label => label.Text));
-            }
-
-            // Show the labels again
-            if (gameLabel != null) gameLabel.Visible = true;
-            if (roundLabel != null) roundLabel.Visible = true;
-
-            foreach (Control control in scoreScreen.Controls)
-            {
-                if (control is Label matchupLabel && matchupLabel.Name.StartsWith("matchupLabel"))
-                {
-                    matchupLabel.Visible = true;
-                }
-                else if (control.Name.StartsWith("headLine"))
-                {
-                    control.Text = headline;
-                    // Correct the position of the Headline label
-                    control.Location = new Point((scoreScreen.ClientSize.Width - control.Width) / 2, control.Location.Y);
-                }
             }
         }
 
@@ -1335,8 +1379,7 @@ namespace LanToolz2
         {
             int duration = 150; // Duration of the animation in milliseconds
             int steps = 100; // Number of steps in the animation
-            Random random = new Random();
-            int circles = random.Next(3, 9); // Random number of circles (3-9)
+            int circles = 3;
 
             // Move to the center of the form
             Point center = new Point((labels[0].Parent.ClientSize.Width - labels[0].Width) / 2, (labels[0].Parent.ClientSize.Height - labels[0].Height) / 2);

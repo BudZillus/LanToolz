@@ -111,6 +111,8 @@ namespace LanToolz2
                     teamLabel.Name = "teamLabel" + (teamIndex + 1);
                     teamLabel.Text = "Team " + (teamIndex + 1);
                     teamLabel.AutoSize = true;
+                    teamLabel.TextAlign = ContentAlignment.MiddleCenter;
+                    teamLabel.Visible = true;
                     teamLabel.Font = new Font("Arial", 20, FontStyle.Bold);
 
                     if (col == 0) // Left side panels
@@ -213,7 +215,6 @@ namespace LanToolz2
                         playerLabel.Text = players[i];
                         playerLabel.AutoSize = true;
                         playerLabel.Font = new Font("Arial", 14, FontStyle.Bold);
-
                         int labelWidth = playerLabel.PreferredWidth;
                         int labelHeight = playerLabel.PreferredHeight;
 
@@ -275,6 +276,7 @@ namespace LanToolz2
             currentGameLabel.AutoSize = true;
             currentGameLabel.Font = new Font("Arial", 30, FontStyle.Bold);
             currentGameLabel.TextAlign = ContentAlignment.MiddleCenter;
+            currentGameLabel.Visible = false;
             currentGameLabel.Location = new Point((screenWidth - currentGameLabel.PreferredWidth) / 2, clockLabel.Bottom + 175);
             this.Controls.Add(currentGameLabel);
 
