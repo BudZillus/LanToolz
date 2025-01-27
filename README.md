@@ -9,7 +9,7 @@ LanToolz ist eine Windows-Anwendung, die entwickelt wurde, um Turniere bei Lanpa
 
 ## Installation
 1. Stellen Sie sicher, dass .NET Framework 4.7.2 auf Ihrem System installiert ist.
-2. Laden Sie die neueste Version von LanToolz2 von der [Release-Seite](https://github.com/BudZillus/LanToolz/releases) herunter.
+2. Laden Sie die neueste Version von LanToolz von der [Release-Seite](https://github.com/BudZillus/LanToolz/releases) herunter.
 3. Entpacken Sie die heruntergeladene Datei und führen Sie `LanToolz.exe` aus.
 
 ## Einrichtung der Daten
