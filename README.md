@@ -19,4 +19,4 @@ LanToolz ist eine Windows-Anwendung, die entwickelt wurde, um Turniere bei Lanpa
    - `poop.png`: Bild für die Teams ab dem vierten Platz.
 
    Beispiel-Verzeichnisstruktur:
-   LanToolz2 ├── LanToolz2.exe └── Data ├── rankingBackground.png └── poop.png
+   LanToolz2 ├── LanToolz.exe └── Data ├── rankingBackground.png └── poop.png
